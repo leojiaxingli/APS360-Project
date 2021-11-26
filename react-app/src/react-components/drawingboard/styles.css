@@ -1,0 +1,11 @@
+.board-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+#recognition-text {
+    position: absolute;
+    margin: 0;
+    bottom: 0;
+}
