@@ -32,18 +32,22 @@ class SolverService(Singleton):
             # cv2.rectangle(img, (x, y), (x + w, y + h), (90, 0, 255), 2)
         return segments
 
+    def padding(self, img, padding,  width, height):
+        result = np.full((padding, padding), fill_value=0, dtype=np.uint8)
+        x_center = (padding - width) // 2
+        y_center = (padding - height) // 2
+        result[y_center:y_center + height, x_center:x_center + width] = img
+        return result
+
     def pre_process(self, img):
         old_image_height, old_image_width = img.shape
-        new_dim = max(old_image_width, old_image_height)
+        padding = max(old_image_width, old_image_height)
+        img = self.padding(img, padding, old_image_width, old_image_height)
+        img = cv2.resize(img, (28, 28), interpolation=cv2.INTER_AREA)
+        img = self.padding(img, 31, 28, 28)
+        resized = cv2.resize(img, (28, 28), interpolation=cv2.INTER_AREA)
 
-        result = np.full((new_dim, new_dim), fill_value=0, dtype=np.uint8)
-        x_center = (new_dim - old_image_width) // 2
-        y_center = (new_dim - old_image_height) // 2
-        result[y_center:y_center + old_image_height, x_center:x_center + old_image_width] = img
-
-        resized = cv2.resize(result, (28, 28), interpolation=cv2.INTER_AREA)
-
-        # cv2.imshow('', result)
+        # cv2.imshow('', resized)
         # cv2.waitKey(0)
 
         img_torch = torch.from_numpy(np.array([resized]).astype(np.float32))
